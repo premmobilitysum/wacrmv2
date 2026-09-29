@@ -53,14 +53,19 @@ export function WhatsAppEmbeddedSignup({ onSuccess, isConnected = false }: Whats
       return
     }
 
-    setIsConnecting(true)
+    if (typeof window !== 'undefined' && window.location.protocol === 'http:') {
+      toast.error('Meta Embedded Signup requires an HTTPS connection. Please switch to the "Manual Credentials" tab above to configure your WhatsApp number on localhost.', { duration: 7000 })
+      setIsConnecting(false)
+      return
+    }
 
     // Launch Meta Embedded Signup popup
-    window.FB.login(
-      async function (response: any) {
-        if (response?.authResponse?.code) {
-          const code = response.authResponse.code
-          toast.loading('Authenticating with Meta & configuring WhatsApp...', { id: 'meta-connect' })
+    try {
+      window.FB.login(
+        async function (response: any) {
+          if (response?.authResponse?.code) {
+            const code = response.authResponse.code
+            toast.loading('Authenticating with Meta & configuring WhatsApp...', { id: 'meta-connect' })
           
           try {
             const res = await fetch('/api/whatsapp/oauth/exchange', {
@@ -108,6 +113,11 @@ export function WhatsAppEmbeddedSignup({ onSuccess, isConnected = false }: Whats
         },
       }
     )
+    } catch (e: any) {
+      console.error('FB.login call failed:', e)
+      toast.error('Meta Facebook Login failed: ' + (e?.message || 'HTTPS is required by Meta.'))
+      setIsConnecting(false)
+    }
   }
 
   return (
@@ -143,6 +153,13 @@ export function WhatsAppEmbeddedSignup({ onSuccess, isConnected = false }: Whats
         </CardHeader>
 
         <CardContent className="flex flex-col items-center pt-4 pb-8">
+          {typeof window !== 'undefined' && window.location.protocol === 'http:' && (
+            <div className="mb-4 max-w-md rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-center text-xs text-amber-700 dark:text-amber-300">
+              <p className="font-semibold mb-1">⚠️ Local HTTP Environment Detected</p>
+              <p>Meta requires <strong>HTTPS</strong> for Facebook Login. On localhost, please switch to the <strong>&ldquo;Manual Credentials&rdquo;</strong> tab above, or run via HTTPS/ngrok.</p>
+            </div>
+          )}
+
           <Button
             onClick={launchWhatsAppSignup}
             disabled={!isSdkLoaded || isConnecting}
