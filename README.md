@@ -119,7 +119,9 @@ For dedicated VPS installations (Ubuntu 22.04 or 24.04 LTS), you have three prod
 
 ### Option 1: Automated CI/CD Pipeline (GitHub Actions)
 
-This repository includes a pre-configured GitHub Actions workflow in [`.github/workflows/deploy-ubuntu.yml`](./.github/workflows/deploy-ubuntu.yml). When you push code to `main`, GitHub Actions automatically connects to your Ubuntu server via SSH, pulls the latest changes, builds the app, and reloads PM2 with zero downtime.
+This repository includes a pre-configured GitHub Actions workflow located in [`deploy/workflows/deploy-ubuntu.yml`](./deploy/workflows/deploy-ubuntu.yml). When you push code to `main`, GitHub Actions automatically connects to your Ubuntu server via SSH, pulls the latest changes, builds the app, and reloads PM2 with zero downtime.
+
+> **Note**: To enable this workflow directly in GitHub Actions, copy it to `.github/workflows/deploy-ubuntu.yml` (or create a new workflow via the GitHub Actions UI and paste the contents of `deploy/workflows/deploy-ubuntu.yml`).
 
 #### Step 1: Prepare Destination Directory on Ubuntu
 SSH into your Ubuntu server and run:
