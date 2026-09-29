@@ -278,13 +278,12 @@ export default function TenantsPage() {
                   <th className="px-6 py-3.5">Join Date</th>
                   <th className="px-6 py-3.5">WhatsApp Setup</th>
                   <th className="px-6 py-3.5">Status</th>
-                  <th className="px-6 py-3.5 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {filteredTenants.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-muted-foreground">
+                    <td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">
                       No tenants found matching your search.
                     </td>
                   </tr>
@@ -353,52 +352,49 @@ export default function TenantsPage() {
                           )}
                         </td>
 
-                        {/* Account Status */}
+                        {/* Status & Action in Same Column */}
                         <td className="px-6 py-4">
-                          {t.isActive ? (
-                            <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                              <CheckCircle2 className="size-3.5" />
-                              Active
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
-                              <XCircle className="size-3.5" />
-                              Deactivated
-                            </span>
-                          )}
-                        </td>
+                          <div className="flex items-center gap-2.5">
+                            {t.isActive ? (
+                              <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                                <CheckCircle2 className="size-3.5" />
+                                Active
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
+                                <XCircle className="size-3.5" />
+                                Deactivated
+                              </span>
+                            )}
 
-                        {/* Actions */}
-                        <td className="px-6 py-4 text-right">
-                          {isSelf ? (
-                            <span className="text-xs text-muted-foreground italic">Super Admin</span>
-                          ) : (
-                            <Button
-                              variant={t.isActive ? 'outline' : 'default'}
-                              size="sm"
-                              disabled={isPending}
-                              onClick={() => handleToggleStatus(t)}
-                              className={`h-8 text-xs font-semibold gap-1.5 ${
-                                t.isActive
-                                  ? 'border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40'
-                                  : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                              }`}
-                            >
-                              {isPending ? (
-                                <Loader2 className="size-3.5 animate-spin" />
-                              ) : t.isActive ? (
-                                <>
-                                  <Lock className="size-3.5" />
-                                  Deactivate
-                                </>
-                              ) : (
-                                <>
-                                  <Unlock className="size-3.5" />
-                                  Activate
-                                </>
-                              )}
-                            </Button>
-                          )}
+                            {!isSelf && (
+                              <Button
+                                variant={t.isActive ? 'outline' : 'default'}
+                                size="sm"
+                                disabled={isPending}
+                                onClick={() => handleToggleStatus(t)}
+                                className={`h-7 px-2.5 text-xs font-medium gap-1.5 ${
+                                  t.isActive
+                                    ? 'border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-400 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40'
+                                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                                }`}
+                              >
+                                {isPending ? (
+                                  <Loader2 className="size-3 animate-spin" />
+                                ) : t.isActive ? (
+                                  <>
+                                    <Lock className="size-3" />
+                                    Deactivate
+                                  </>
+                                ) : (
+                                  <>
+                                    <Unlock className="size-3" />
+                                    Activate
+                                  </>
+                                )}
+                              </Button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );
