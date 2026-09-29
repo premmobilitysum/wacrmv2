@@ -22,6 +22,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 const SUPER_ADMIN_EMAIL = 'dheeraj@mobilitysum.com';
 
@@ -352,49 +353,49 @@ export default function TenantsPage() {
                           )}
                         </td>
 
-                        {/* Status & Action in Same Column */}
+                        {/* Status as Single Clickable Toggle Button */}
                         <td className="px-6 py-4">
-                          <div className="flex items-center gap-2.5">
-                            {t.isActive ? (
-                              <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                                <CheckCircle2 className="size-3.5" />
-                                Active
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20">
-                                <XCircle className="size-3.5" />
-                                Deactivated
-                              </span>
-                            )}
-
-                            {!isSelf && (
-                              <Button
-                                variant={t.isActive ? 'outline' : 'default'}
-                                size="sm"
-                                disabled={isPending}
-                                onClick={() => handleToggleStatus(t)}
-                                className={`h-7 px-2.5 text-xs font-medium gap-1.5 ${
-                                  t.isActive
-                                    ? 'border-red-300 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-400 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40'
-                                    : 'bg-emerald-600 text-white hover:bg-emerald-700'
-                                }`}
-                              >
-                                {isPending ? (
-                                  <Loader2 className="size-3 animate-spin" />
-                                ) : t.isActive ? (
-                                  <>
-                                    <Lock className="size-3" />
-                                    Deactivate
-                                  </>
-                                ) : (
-                                  <>
-                                    <Unlock className="size-3" />
-                                    Activate
-                                  </>
-                                )}
-                              </Button>
-                            )}
-                          </div>
+                          {isSelf ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-default">
+                              <CheckCircle2 className="size-3.5" />
+                              Active (Owner)
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={isPending}
+                              onClick={() => handleToggleStatus(t)}
+                              title={t.isActive ? "Click to Deactivate" : "Click to Activate"}
+                              className={cn(
+                                "group inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition-all shadow-xs select-none cursor-pointer",
+                                t.isActive
+                                  ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/25 hover:bg-red-500/10 hover:text-red-600 hover:border-red-500/30 dark:text-emerald-400 dark:border-emerald-500/30"
+                                  : "bg-red-500/10 text-red-600 border border-red-500/25 hover:bg-emerald-500/10 hover:text-emerald-600 hover:border-emerald-500/30 dark:text-red-400 dark:border-red-500/30",
+                                isPending && "opacity-60 cursor-not-allowed"
+                              )}
+                            >
+                              {isPending ? (
+                                <>
+                                  <Loader2 className="size-3.5 animate-spin" />
+                                  <span>Updating...</span>
+                                </>
+                              ) : t.isActive ? (
+                                <>
+                                  <CheckCircle2 className="size-3.5 text-emerald-500 group-hover:hidden" />
+                                  <Lock className="size-3.5 text-red-500 hidden group-hover:inline" />
+                                  <span className="group-hover:hidden">Active</span>
+                                  <span className="hidden group-hover:inline">Deactivate?</span>
+                                </>
+                              ) : (
+                                <>
+                                  <XCircle className="size-3.5 text-red-500 group-hover:hidden" />
+                                  <Unlock className="size-3.5 text-emerald-500 hidden group-hover:inline" />
+                                  <span className="group-hover:hidden">Deactivated</span>
+                                  <span className="hidden group-hover:inline">Activate?</span>
+                                </>
+                              )}
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );
