@@ -10,6 +10,7 @@ import { useUnreadNotifications } from "@/hooks/use-unread-notifications";
 import {
   Bell,
   Bot,
+  Building2,
   Crown,
   GitBranch,
   LayoutDashboard,
@@ -116,7 +117,9 @@ import { useTranslations } from "next-intl";
 export function Sidebar({ open = false, onClose }: SidebarProps) {
   const t = useTranslations("Sidebar");
   const pathname = usePathname();
-  const { profile, profileLoading, account, accountRole, signOut } = useAuth();
+  const { user, profile, profileLoading, account, accountRole, signOut } = useAuth();
+  const isSuperAdmin =
+    (user?.email || profile?.email)?.toLowerCase() === "dheeraj@mobilitysum.com";
   const totalUnread = useTotalUnread();
   const unreadNotifications = useUnreadNotifications();
   // Only surface the account-name strip when it actually carries
@@ -295,6 +298,27 @@ export function Sidebar({ open = false, onClose }: SidebarProps) {
                 </li>
               );
             })}
+
+            {isSuperAdmin && (
+              <li>
+                <Link
+                  href="/tenants"
+                  onClick={onClose}
+                  className={cn(
+                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors lg:py-2",
+                    pathname.startsWith("/tenants")
+                      ? "bg-primary/10 text-primary font-semibold"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                  )}
+                >
+                  <Building2 className="h-4 w-4 text-amber-500" />
+                  <span className="flex-1">Tenants</span>
+                  <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                    Admin
+                  </span>
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
 
