@@ -140,6 +140,25 @@ export async function GET() {
     )
   }
 
+  // Auto-heal: If Meta confirms the phone number is valid and the WABA is
+  // actively subscribed to this app, automatically mark registered_at so
+  // test numbers and pre-registered production numbers are fully live.
+  if (checks.phone_metadata_ok && (checks.waba_subscribed_to_app ?? false) && !checks.locally_marked_registered) {
+    const now = new Date().toISOString()
+    const { error: updateErr } = await supabase
+      .from('whatsapp_config')
+      .update({
+        registered_at: now,
+        last_registration_error: null,
+      })
+      .eq('account_id', accountId)
+
+    if (!updateErr) {
+      checks.locally_marked_registered = true
+      config.registered_at = now
+    }
+  }
+
   const live =
     checks.phone_metadata_ok &&
     (checks.waba_subscribed_to_app ?? false) &&
