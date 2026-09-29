@@ -1,0 +1,125 @@
+{
+  "automations": [
+    {
+      "id": "driver-registration-flow",
+      "name": "New Driver Registration Flow",
+      "description": "Guides new drivers through onboarding via WhatsApp, collects initial profile details, calls CabSoftware API and tags contact.",
+      "trigger_type": "keyword_match",
+      "trigger_config": {
+        "keywords": ["driver", "register driver", "driver attach", "join as driver"],
+        "match_type": "contains"
+      },
+      "steps": [
+        {
+          "step_type": "send_message",
+          "step_config": {
+            "text": "Hello! 👋 Welcome to EasyETS Cab Services. We are excited to have you join our fleet network!\n\nPlease reply with your:\n1. Full Name\n2. City\n3. Vehicle Model & Number"
+          }
+        },
+        {
+          "step_type": "add_tag",
+          "step_config": {
+            "tag_name": "Driver Lead"
+          }
+        },
+        {
+          "step_type": "send_webhook",
+          "step_config": {
+            "url": "https://api.easyets.com/api/Driver/GetDriverRegisterNew",
+            "method": "POST",
+            "body_template": "{\"OrgId\": 102, \"FullName\": \"{{contact.name}}\", \"MobileNo\": \"{{contact.phone}}\", \"City\": \"Delhi\", \"AppsMobileNo\": \"{{contact.phone}}\"}"
+          }
+        }
+      ]
+    },
+    {
+      "id": "driver-broadcast-accept-flow",
+      "name": "Driver Booking Broadcast & Accept",
+      "description": "Handles driver ride acceptance when driver replies or taps accept on broadcast.",
+      "trigger_type": "keyword_match",
+      "trigger_config": {
+        "keywords": ["accept", "ACCEPT"],
+        "match_type": "contains"
+      },
+      "steps": [
+        {
+          "step_type": "send_webhook",
+          "step_config": {
+            "url": "https://api.easyets.com/api/Driver/GetDriverBookingAccept",
+            "method": "GET"
+          }
+        },
+        {
+          "step_type": "send_message",
+          "step_config": {
+            "text": "🚕 Booking Confirmed! Navigation details have been sent to your Driver App. Please proceed to pickup location."
+          }
+        }
+      ]
+    }
+  ],
+  "sample_api_payloads": {
+    "driver_register": {
+      "url": "/api/Driver/GetDriverRegisterNew",
+      "method": "POST",
+      "body": {
+        "OrgId": 102,
+        "FullName": "Ramesh Singh",
+        "MobileNo": "9810012345",
+        "EmailId": "ramesh@example.com",
+        "City": "New Delhi",
+        "Address": "Sector 18, Rohini",
+        "AppsMobileNo": "9810012345",
+        "IMEINO": "990012345678901",
+        "RegEmailId": "ramesh@example.com",
+        "AppsDeviceId": "WA-ONBOARD-01",
+        "DeviceName": "WhatsApp",
+        "DeviceModel": "WA",
+        "AndroidVersion": "14",
+        "FcmId": "",
+        "IpAddress": "127.0.0.1",
+        "ReferralCode": "",
+        "StateId": "1",
+        "CityId": "10"
+      }
+    },
+    "driver_accept_booking": {
+      "url": "/api/Driver/GetDriverBookingAccept?flag=5&orgid=102&locationid=0&driverid=5421&bookingid=98124&domainname=easyets.com&multibookingrefid=0",
+      "method": "GET"
+    },
+    "driver_at_pickup": {
+      "url": "/api/Driver/UpdateDriverRecentLocation",
+      "method": "POST",
+      "body": {
+        "OrgId": 102,
+        "DriverId": 5421,
+        "BookingId": 98124,
+        "Latitude": "28.6139",
+        "Longitude": "77.2090",
+        "Status": "Arrived",
+        "Action": "AtPickupPoint"
+      }
+    },
+    "driver_start_trip": {
+      "url": "/api/Driver/ValidateOTPCodeByAction?orgid=102&driverid=5421&otpcode=4821&status=StartTrip&bookingid=98124",
+      "method": "GET"
+    },
+    "driver_end_trip": {
+      "url": "/api/Driver/SetFinalPayment",
+      "method": "POST",
+      "body": {
+        "OrgId": 102,
+        "BookingId": 98124,
+        "DriverId": 5421,
+        "StartKm": 15000,
+        "EndKm": 15038,
+        "TotalKm": 38,
+        "ExtraKmCharge": 120.0,
+        "TollCharge": 80.0,
+        "ParkingCharge": 0.0,
+        "TotalPaid": 750.0,
+        "PaymentMode": "Cash"
+      }
+    }
+  }
+}

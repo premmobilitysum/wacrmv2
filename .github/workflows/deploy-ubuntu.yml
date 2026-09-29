@@ -1,0 +1,48 @@
+name: Deploy to Ubuntu Server
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: Deploy to Ubuntu VPS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Ubuntu via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.UBUNTU_SERVER_HOST }}
+          username: ${{ secrets.UBUNTU_SERVER_USER }}
+          key: ${{ secrets.UBUNTU_SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.UBUNTU_SSH_PASSPHRASE }}
+          port: ${{ secrets.UBUNTU_SSH_PORT || 22 }}
+          script: |
+            set -e
+            echo "Starting deployment on Ubuntu server..."
+            cd ${{ secrets.UBUNTU_DEPLOY_PATH || '/var/www/wacrm' }}
+            
+            # Fetch latest changes from main branch
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Install dependencies and build project
+            npm ci --production=false
+            npm run build
+            
+            # Restart or reload application with PM2
+            if pm2 describe wacrm > /dev/null 2>&1; then
+              echo "Reloading PM2 instance 'wacrm' with zero-downtime..."
+              pm2 reload wacrm
+            else
+              echo "Starting new PM2 instance 'wacrm'..."
+              pm2 start npm --name "wacrm" -- start
+            fi
+            
+            pm2 save
+            echo "Deployment successfully completed!"
